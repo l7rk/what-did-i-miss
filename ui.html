@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Did I Miss?</title>
+<style>
+:root {
+  --bg: #fbf7f0;
+  --card: #ffffff;
+  --ink: #22302d;
+  --soft: #5f6d69;
+  --line: #ebe4d8;
+  --teal: #1f7a6b;
+  --teal-soft: #e3f2ee;
+  --coral: #d9633f;
+  --coral-soft: #fdece5;
+  --amber: #a8770b;
+  --amber-soft: #fbf1d9;
+  --shadow: 0 1px 2px rgba(34,48,45,.06), 0 8px 24px rgba(34,48,45,.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161c1b;
+    --card: #1f2725;
+    --ink: #eef3f1;
+    --soft: #9fb0ab;
+    --line: #2e3836;
+    --teal: #4cc2ab;
+    --teal-soft: #1d3530;
+    --coral: #f08a68;
+    --coral-soft: #3a2620;
+    --amber: #e3b54a;
+    --amber-soft: #352d18;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 ui-rounded, "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 40px 16px 64px; }
+header { display: flex; gap: 14px; align-items: center; margin-bottom: 28px; }
+.logo {
+  width: 52px; height: 52px; border-radius: 16px; background: var(--teal);
+  display: grid; place-items: center; flex: none; box-shadow: var(--shadow);
+}
+h1 { margin: 0; font-size: 28px; letter-spacing: -.02em; }
+.sub { margin: 2px 0 0; color: var(--soft); }
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+  box-shadow: var(--shadow); padding: 24px; margin-bottom: 18px;
+}
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+.step { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; color: var(--soft); }
+.step b { color: var(--ink); font-weight: 600; }
+.num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--teal-soft);
+  color: var(--teal); font-weight: 700; display: grid; place-items: center; font-size: 14px;
+}
+.drop {
+  display: block;
+  border: 2.5px dashed var(--line); border-radius: 18px; padding: 40px 20px; text-align: center;
+  cursor: pointer; transition: .15s; background: transparent;
+}
+.drop:hover, .drop.over { border-color: var(--teal); background: var(--teal-soft); }
+.drop h2 { margin: 12px 0 4px; font-size: 20px; }
+.drop p { margin: 0 0 16px; color: var(--soft); }
+button, .btn {
+  font: inherit; font-weight: 600; border: 0; border-radius: 12px; padding: 11px 18px;
+  cursor: pointer; transition: .15s; display: inline-flex; align-items: center; gap: 8px;
+}
+.primary { background: var(--teal); color: #fff; }
+.primary:hover { filter: brightness(1.08); }
+.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.ghost:hover { border-color: var(--teal); color: var(--teal); }
+button:disabled { opacity: .5; cursor: default; filter: none; }
+.small { padding: 6px 12px; font-size: 14px; border-radius: 10px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.file { color: var(--soft); font-size: 14px; word-break: break-all; }
+.chips { display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+.chip.t { background: var(--teal-soft); color: var(--teal); }
+.chip.c { background: var(--coral-soft); color: var(--coral); }
+.chip.a { background: var(--amber-soft); color: var(--amber); }
+.card h3 { margin: 0 0 4px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.card .hint { margin: 0 0 16px; color: var(--soft); font-size: 14.5px; }
+ul.list { list-style: none; margin: 0; padding: 0; }
+ul.list li {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line);
+}
+ul.list li:first-child { border-top: 0; }
+.idx {
+  flex: none; width: 28px; height: 28px; border-radius: 9px; background: var(--bg);
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--soft);
+}
+li.opened .idx { background: var(--teal); color: #fff; }
+.name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+li.opened .name { color: var(--soft); }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); align-items: center; }
+.status { color: var(--teal); font-weight: 600; font-size: 14.5px; }
+.bar { height: 8px; background: var(--bg); border-radius: 99px; overflow: hidden; margin-top: 14px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 99px; transition: width .4s; }
+details summary { cursor: pointer; font-weight: 600; font-size: 18px; list-style: none; display: flex; align-items: center; gap: 8px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::after { content: "▾"; color: var(--soft); font-size: 14px; }
+details[open] summary::after { content: "▴"; }
+details .hint { margin-top: 6px; }
+.big { text-align: center; padding: 36px 24px; }
+.big h2 { margin: 14px 0 6px; }
+.big p { color: var(--soft); margin: 0 auto 18px; max-width: 460px; }
+footer { text-align: center; color: var(--soft); font-size: 13.5px; margin-top: 26px; }
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+  background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 12px;
+  opacity: 0; transition: .25s; pointer-events: none; font-size: 14.5px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%); }
+.pill { flex: none; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.pill.yes { background: var(--teal-soft); color: var(--teal); }
+.pill.no { background: var(--coral-soft); color: var(--coral); }
+.score { font-size: 34px; font-weight: 800; letter-spacing: -.02em; margin: 2px 0 2px; }
+.score small { font-size: 16px; color: var(--soft); font-weight: 600; }
+#verify { border: 2px solid var(--teal); }
+#checkCard { border-style: dashed; }
+.hidden { display: none !important; }
+@media (max-width: 600px) {
+  .steps { grid-template-columns: 1fr; }
+  h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M8 11l2 2 4-4"/><path d="M21 21l-4.5-4.5"/></svg>
+    </div>
+    <div>
+      <h1>What did I miss?</h1>
+      <p class="sub">Find the bits of your OpenLearn course that haven't ticked yet.</p>
+    </div>
+  </header>
+
+  <section id="start" class="card">
+    <div class="steps">
+      <div class="step"><span class="num">1</span><span>Open your course and go to <b>Course contents</b></span></div>
+      <div class="step"><span class="num">2</span><span>Click <b>Expand all content</b></span></div>
+      <div class="step"><span class="num">3</span><span>Press <b>Ctrl + S</b> and save as <b>Webpage, Complete</b></span></div>
+    </div>
+    <label class="drop" id="drop">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+      <h2>Drop your saved page here</h2>
+      <p>The .html file you just saved</p>
+      <span class="btn primary">Choose file</span>
+      <input type="file" id="pick" accept=".html,.htm,text/html" hidden>
+    </label>
+  </section>
+
+  <section id="verify" class="card hidden">
+    <h3>Did it work?</h3>
+    <div class="score" id="vScore"></div>
+    <p class="hint" id="vHint"></p>
+    <ul class="list" id="vList"></ul>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="top">
+      <div>
+        <div class="chips" id="chips"></div>
+        <div class="file" id="fname" style="margin-top:8px"></div>
+      </div>
+      <button class="ghost small" id="again">Check another page</button>
+    </div>
+
+    <div class="card" id="pagesCard">
+      <h3>Pages to open</h3>
+      <p class="hint">Week introductions plus the numbered sections without a tick. Make sure you're logged in to OpenLearn in your browser first.</p>
+      <ul class="list" id="pagesList"></ul>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="actions">
+        <button class="primary" id="next">Open next page</button>
+        <button class="ghost" id="batch">Open in batches of 5</button>
+        <button class="ghost hidden" id="stop">Stop</button>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+
+    <div class="card hidden" id="checkCard">
+      <h3>Check you got the ticks</h3>
+      <p class="hint">Wait a couple of minutes, refresh <b>Course contents</b>, click <b>Expand all content</b>, then save it again with <b>Ctrl + S</b> and drop the new file anywhere on this window.</p>
+      <button class="primary" id="checkBtn">I've saved it again, check now</button>
+    </div>
+
+    <div class="card" id="quizCard">
+      <h3>Quizzes, these ones are yours</h3>
+      <p class="hint">You'll need these for the badge. You've got this!</p>
+      <ul class="list" id="quizList"></ul>
+    </div>
+
+    <div class="card" id="skipCard">
+      <details>
+        <summary>Skipped pages</summary>
+        <p class="hint">Further reading, references and similar. If you're stuck under 100% after everything else ticks, these might be why.</p>
+        <ul class="list" id="skipList"></ul>
+      </details>
+    </div>
+
+    <div class="card" id="otherCard">
+      <details>
+        <summary>Not opened</summary>
+        <p class="hint">These didn't link to OpenLearn, so they're left alone.</p>
+        <ul class="list" id="otherList"></ul>
+      </details>
+    </div>
+  </section>
+
+  <section id="message" class="card big hidden">
+    <div id="msgIcon"></div>
+    <h2 id="msgTitle"></h2>
+    <p id="msgText"></p>
+    <button class="primary" id="again2">Check another page</button>
+  </section>
+
+  <footer>Runs only on your computer and never logs in for you. Close this tab to quit.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TOKEN = "__TOKEN__";
+const $ = id => document.getElementById(id);
+const BATCH = 5, WAIT = 10;
+let data = null, nextIdx = 0, opened = new Set(), batching = false, stopFlag = false;
+
+function api(path, opts = {}) {
+  opts.headers = Object.assign({ "X-Token": TOKEN }, opts.headers || {});
+  return fetch(path, opts);
+}
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 2600);
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const ping = () => api("/api/ping", { method: "POST" }).catch(() => {});
+ping(); setInterval(ping, 20000);
+document.addEventListener("visibilitychange", ping);
+addEventListener("pagehide", () => navigator.sendBeacon("/api/bye?t=" + TOKEN));
+
+function show(which) {
+  ["start", "results", "message"].forEach(id => $(id).classList.toggle("hidden", id !== which));
+  if (which === "start") $("verify").classList.add("hidden");
+  scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function message(kind, title, text) {
+  const icons = {
+    yay: '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>',
+    hmm: '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5h.01"/></svg>'
+  };
+  $("msgIcon").innerHTML = icons[kind];
+  $("msgTitle").textContent = title;
+  $("msgText").textContent = text;
+  show("message");
+}
+
+function renderList(el, items, kind) {
+  el.innerHTML = items.map((it, i) => `
+    <li data-i="${i}" class="${kind === "page" && opened.has(i) ? "opened" : ""}">
+      <span class="idx">${kind === "page" && opened.has(i) ? "✓" : i + 1}</span>
+      <span class="name">${esc(it.name)}</span>
+      ${kind === "other" ? "" : `<button class="ghost small" data-kind="${kind}" data-i="${i}">${kind === "quiz" ? "Go to quiz" : "Open"}</button>`}
+    </li>`).join("");
+}
+
+function render() {
+  const d = data;
+  if (d.missed === 0) {
+    if (d.done === 0) return message("hmm", "I couldn't find any progress ticks",
+      "Make sure it's the Course contents page with Expand all content clicked before saving, and that you were logged in.");
+    return message("yay", "Everything's ticked!",
+      `All ${d.done} items I found are done. If you're still under 100%, check you've submitted every quiz, then wait a few minutes and refresh.`);
+  }
+  const chips = [];
+  if (d.pages.length) chips.push(`<span class="chip t">${d.pages.length} page${d.pages.length > 1 ? "s" : ""} to open</span>`);
+  if (d.quizzes.length) chips.push(`<span class="chip c">${d.quizzes.length} quiz${d.quizzes.length > 1 ? "zes" : ""} for you</span>`);
+  if (d.skipped.length) chips.push(`<span class="chip a">${d.skipped.length} skipped</span>`);
+  $("chips").innerHTML = chips.join("");
+  $("fname").textContent = d.file ? "Checked " + d.file : "";
+  $("pagesCard").classList.toggle("hidden", !d.pages.length);
+  $("quizCard").classList.toggle("hidden", !d.quizzes.length);
+  $("skipCard").classList.toggle("hidden", !d.skipped.length);
+  $("otherCard").classList.toggle("hidden", !d.other.length);
+  renderList($("pagesList"), d.pages, "page");
+  renderList($("quizList"), d.quizzes, "quiz");
+  renderList($("skipList"), d.skipped, "skipped");
+  renderList($("otherList"), d.other, "other");
+  updateProgress();
+  show("results");
+}
+
+function updateProgress() {
+  const total = data.pages.length, n = opened.size;
+  $("bar").style.width = (total ? n / total * 100 : 0) + "%";
+  while (nextIdx < total && opened.has(nextIdx)) nextIdx++;
+  const done = nextIdx >= total;
+  $("next").textContent = done ? "All opened" : `Open next page (${nextIdx + 1} of ${total})`;
+  $("next").disabled = done || batching;
+  $("batch").disabled = done || batching;
+  if (done && !batching) $("status").textContent = "Done! Refresh Course contents in a few minutes to see the ticks.";
+}
+
+async function openOne(kind, i) {
+  const r = await api(`/api/open?kind=${kind}&i=${i}`, { method: "POST" });
+  if (!r.ok) { toast("Couldn't open that one"); return false; }
+  if (kind === "page" || kind === "quiz") $("checkCard").classList.remove("hidden");
+  if (kind === "page") {
+    opened.add(i);
+    const li = $("pagesList").querySelector(`li[data-i="${i}"]`);
+    if (li) { li.classList.add("opened"); li.querySelector(".idx").textContent = "✓"; }
+    updateProgress();
+  }
+  return true;
+}
+
+async function runBatches() {
+  batching = true; stopFlag = false;
+  $("stop").classList.remove("hidden"); updateProgress();
+  const todo = data.pages.map((_, i) => i).filter(i => !opened.has(i));
+  for (let b = 0; b < todo.length && !stopFlag; b += BATCH) {
+    const group = todo.slice(b, b + BATCH);
+    $("status").textContent = `Opening ${group.length}…`;
+    for (const i of group) {
+      if (stopFlag) break;
+      await openOne("page", i);
+      await sleep(400);
+    }
+    if (b + BATCH < todo.length && !stopFlag) {
+      for (let s = WAIT; s > 0 && !stopFlag; s--) {
+        $("status").textContent = `Letting those load… next ${Math.min(BATCH, todo.length - b - BATCH)} in ${s}s`;
+        await sleep(1000);
+      }
+    }
+  }
+  batching = false;
+  $("stop").classList.add("hidden");
+  $("status").textContent = stopFlag ? "Stopped." : "";
+  updateProgress();
+}
+
+async function scanFile(file) {
+  if (!file) return;
+  if (!/\.html?$/i.test(file.name)) { toast("That needs to be the .html file you saved"); return; }
+  const text = await file.text();
+  const r = await api("/api/scan?name=" + encodeURIComponent(file.name), { method: "POST", body: text });
+  if (!r.ok) { toast("Something went wrong reading that file"); return; }
+  const fresh = await r.json();
+  const before = data;
+  if (before && fresh.done === 0 && fresh.missed === 0) {
+    toast("That doesn't look like the Course contents page. Try saving it again.");
+    return;
+  }
+  data = fresh; nextIdx = 0; opened = new Set(); $("status").textContent = "";
+  $("checkCard").classList.add("hidden");
+  render();
+  if (before) verify(before, fresh);
+}
+
+function verify(before, after) {
+  const still = new Set(after.missedHrefs);
+  const items = [
+    ...before.pages.map(p => ({ ...p, quiz: false })),
+    ...before.quizzes.map(q => ({ ...q, quiz: true }))
+  ];
+  if (!items.length) return;
+  const got = items.filter(it => !still.has(it.href)).length;
+  $("vScore").innerHTML = `${got} of ${items.length} <small>got their tick</small>`;
+  $("vHint").textContent = got === items.length
+    ? "Every one counted. Nice work!"
+    : "Ticks can take a few minutes to show up. If some are still 'Not yet' after that, open them again and scroll to the bottom of the page.";
+  $("vList").innerHTML = items.map(it => {
+    const ok = !still.has(it.href);
+    return `<li><span class="name">${esc(it.name)}${it.quiz ? ' <span style="color:var(--soft);font-size:13px">(quiz)</span>' : ""}</span>
+      <span class="pill ${ok ? "yes" : "no"}">${ok ? "✓ Got it" : "Not yet"}</span></li>`;
+  }).join("");
+  $("verify").classList.remove("hidden");
+  scrollTo({ top: 0, behavior: "smooth" });
+}
+
+$("pick").addEventListener("change", e => scanFile(e.target.files[0]));
+["dragenter", "dragover"].forEach(ev => addEventListener(ev, e => { e.preventDefault(); $("drop").classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => addEventListener(ev, e => { e.preventDefault(); if (ev === "drop" || !e.relatedTarget) $("drop").classList.remove("over"); }));
+addEventListener("drop", e => scanFile(e.dataTransfer.files[0]));
+$("next").addEventListener("click", () => openOne("page", nextIdx));
+$("batch").addEventListener("click", runBatches);
+$("stop").addEventListener("click", () => { stopFlag = true; });
+const reset = () => { if (batching) stopFlag = true; data = null; $("pick").value = ""; $("checkCard").classList.add("hidden"); show("start"); };
+$("checkBtn").addEventListener("click", () => { $("pick").value = ""; $("pick").click(); });
+$("again").addEventListener("click", reset);
+$("again2").addEventListener("click", reset);
+document.addEventListener("click", e => {
+  const b = e.target.closest("button[data-kind]");
+  if (b) openOne(b.dataset.kind, +b.dataset.i);
+});
+
+api("/api/preload").then(r => r.json()).then(d => { if (d) { data = d; render(); } }).catch(() => {});
+</script>
+</body>
+</html>
